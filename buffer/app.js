@@ -31,4 +31,4 @@ const buff2 = Buffer.from("string", "utf-8");
 console.log(buff2.toString("utf8"));
 
 const buff3 = Buffer.from("E0A49B", "hex");
-console.log(buff3.toString("utf-8"));
+console.log(buff3.toString("utf-8")); 

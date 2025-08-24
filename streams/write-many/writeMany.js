@@ -51,19 +51,54 @@
 //     }
 // )();
 
+// (
+//     async () =>{
+//         const fs = require('node:fs/promises');
+//         console.time("writemany");
+//         const filehandler = await fs.open("test.txt", 'w');
+//         const stream = filehandler.createWriteStream();
 
-(
-    async () =>{
-        const fs = require('node:fs/promises');
-        console.time("writemany");
-        const filehandler = await fs.open("test.txt", 'w');
-        const stream = filehandler.createWriteStream();
+//         for(let i =0; i<100000; i++){
+//             const buff = Buffer.from(` ${i} `, 'utf-8');
+//             stream.write(buff);
+//         }
 
-        for(let i =0; i<100000; i++){
-            const buff = Buffer.from(` ${i} `, 'utf-8');
-            stream.write(buff);
-        }
+//         console.timeEnd("writemany");
+//     }
+// )
 
-        console.timeEnd("writemany");
+(async () => {
+  const fs = require("node:fs/promises");
+  console.time("writemany");
+  const filehandler = await fs.open("test.txt", "w");
+  const stream = filehandler.createWriteStream();
+
+  let i = 0;
+
+  console.log(stream.writableHighWaterMark);
+
+  function writeMany() {
+    while (i < 1000000) {
+      const buff = Buffer.from(` ${i} `, "utf-8");
+
+      if (i === 999999) return stream.end(buff);
+
+      if (!stream.write(buff)) {
+        break;
+      }
+      i++;
     }
-)();
+  }
+
+  stream.on("drain", () => {
+    console.log("Drained!");
+    writeMany();
+  });
+
+  stream.on("finish", () => {
+    filehandler.close();
+    console.timeEnd("writemany");
+  });
+
+  writeMany();
+})();

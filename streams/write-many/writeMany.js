@@ -70,7 +70,7 @@
 (async () => {
   const fs = require("node:fs/promises");
   console.time("writemany");
-  const filehandler = await fs.open("test.txt", "w");
+  const filehandler = await fs.open("test-big.txt", "w");
   const stream = filehandler.createWriteStream();
 
   let i = 0;
@@ -81,7 +81,7 @@
     while (i < 1000000) {
       const buff = Buffer.from(` ${i} `, "utf-8");
 
-      if (i === 999999) return stream.end(buff);
+      if (i === 9999999) return stream.end(buff);
 
       if (!stream.write(buff)) {
         break;
